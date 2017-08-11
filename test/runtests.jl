@@ -3,7 +3,7 @@ using Base.Test
 
 macro splitcombine(fundef) # should be a no-op
     dict = splitdef(fundef)
-    esc(MacroTools.combinedef(dict))
+    esc(ExprTools.combinedef(dict))
 end
 
 let

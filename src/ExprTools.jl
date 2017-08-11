@@ -5,8 +5,24 @@ using MacroTools: @q
 
 export combinedef, combinearg, splitdef, splitarg
 
-if VERSION >= v"0.6.0"
+@static if VERSION >= v"0.6.0"
     include("utilsv6.jl")
+
+    """
+    combinedef(dict::Dict)
+
+    `combinedef` is the inverse of `splitdef`. It takes a splitdef-like dict
+    and returns a function definition. """
+    function combinedef(dict::Dict)
+        rtype = get(dict, :rtype, :Any)
+        # We have to combine params and whereparams because f{}() where {} = 0 is
+        # a syntax error unless as a constructor.
+        all_params = [get(dict, :params, [])..., get(dict, :whereparams, [])...]
+        :(function $(dict[:name]){$(all_params...)}($(dict[:args]...);
+                                                    $(dict[:kwargs]...))::$rtype
+          $(dict[:body])
+          end)
+    end
 else
     longdef1_where(ex) = ex
     function splitwhere(fdef)
